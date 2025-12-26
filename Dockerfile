@@ -1,17 +1,22 @@
-FROM node:lts-bookworm
+FROM node:20-slim
 
-RUN apt-get update && \
-  apt-get install -y \
-  ffmpeg \
-  imagemagick \
-  webp && \
-  apt-get upgrade -y && \
-  rm -rf /var/lib/apt/lists/*
+# Install dependencies yang dibutuhkan sistem
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    imagemagick \
+    && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /app
+
+# Salin file konfigurasi terlebih dahulu
 COPY package.json .
 
-RUN npm install
+# Paksa instalasi dependencies meskipun lockfile tidak ada
+RUN npm install --network-timeout=100000
 
+# Salin seluruh file bot
 COPY . .
 
+# Jalankan bot
 CMD ["node", "index.js"]
